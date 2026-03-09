@@ -1,0 +1,40 @@
+# Python 编译产物
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+# 安装/构建产物
+*.egg-info/
+*.egg
+dist/
+build/
+.eggs/
+
+# 虚拟环境
+venv/
+.venv/
+env/
+.env/
+
+# 环境变量
+.env
+.env.*
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# 系统文件
+.DS_Store
+Thumbs.db
+
+# 测试缓存
+.pytest_cache/
+.coverage
+htmlcov/
+
+# pip
+pip-wheel-metadata/
