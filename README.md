@@ -22,25 +22,26 @@ OpenMetrics MCP Server - 为 Claude Desktop 提供开源社区数据查询能力
 
 ### 安装步骤
 
-1. 下载或克隆仓库到本地目录：
+1. 从 GitHub 下载项目：
+
 ```bash
-cd /path/to/your/om-mcp
+git clone https://github.com/zhongjun2/om-mcp.git
+cd om-mcp
 ```
 
 2. 安装依赖：
+
 ```bash
 pip install -e .
 ```
 
-或使用 uv：
+3. 验证安装：
+
 ```bash
-uv pip install -e .
+python -c "from server import mcp; print('ok')"
 ```
 
-3. 验证安装：
-```bash
-python -m mcp
-```
+输出 `ok` 说明安装成功。
 
 ## 配置 Claude Desktop
 
@@ -48,20 +49,21 @@ python -m mcp
 
 **macOS**: `~/Library/Application Support/Claude/claude_desktop_config.json`
 **Windows**: `%APPDATA%\Claude\claude_desktop_config.json`
+**Linux**: `~/.config/Claude/claude_desktop_config.json`
 
 ```json
 {
   "mcpServers": {
     "om-metrics": {
       "command": "python",
-      "args": ["-m", "mcp"],
-      "cwd": "/path/to/your/om-mcp"
+      "args": ["server.py"],
+      "cwd": "/path/to/om-mcp"
     }
   }
 }
 ```
 
-**注意**：将 `/path/to/your/om-mcp` 替换为你实际下载的目录路径。
+**注意**：将 `/path/to/om-mcp` 替换为你实际克隆的目录绝对路径，例如 `/home/user/om-mcp` 或 `C:\Users\user\om-mcp`。
 
 重启 Claude Desktop 后即可使用。
 
