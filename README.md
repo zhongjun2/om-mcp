@@ -64,10 +64,8 @@ claude
 在 Claude Desktop 中直接提问，MCP 工具会自动调用。例如：
 
 ```
-查询 openEuler 社区的健康度评分
-openEuler 社区 2025 年每月的 PR 合并趋势
-CANN 社区有多少个参与的企业？
-查询 MindSpore 社区的 CLA 签署情况
+查询 openeuler 社区的健康度评分
+查询 openeuler 社区PR总数
 ```
 
 ## 开发
