@@ -86,13 +86,9 @@ om-mcp/
 │   ├── query_apis.py   # 查询 API（PR/Issue 聚合、按 SIG 统计等）
 │   ├── cla_apis.py     # CLA 相关 API
 │   └── project_apis.py # 项目 CI 指标
-└── test_mcp.py         # 测试脚本
-```
-
-### 运行测试
-
-```bash
-python test_mcp.py
+└── test/               # 测试目录
+    ├── test_mcp.py     # 测试脚本
+    └── README.md       # 测试说明
 ```
 
 ### 添加新工具
@@ -133,7 +129,7 @@ def register(mcp: FastMCP):
 
 1. 确认网络连接正常，可访问远程 API：`curl https://datastat.osinfra.cn/server/`
 2. 检查社区名称是否正确（使用 `list_communities` 工具查看支持的社区）
-3. 查看 `test_mcp.py` 测试结果
+3. 运行测试脚本验证：`cd test && python test_mcp.py`
 
 ## 许可证
 
