@@ -43,41 +43,21 @@ python -c "from server import mcp; print('ok')"
 
 输出 `ok` 说明安装成功。
 
-## 配置
+## 检查在claude中是否安装成功
 
-### Claude Desktop
-
-在 Claude Desktop 配置文件中添加 MCP 服务器：
-
-**macOS**: `~/Library/Application Support/Claude/claude_desktop_config.json`
-**Windows**: `%APPDATA%\Claude\claude_desktop_config.json`
-**Linux**: `~/.config/Claude/claude_desktop_config.json`
-
-```json
-{
-  "mcpServers": {
-    "om-metrics": {
-      "command": "om-mcp"
-    }
-  }
-}
 ```
+claude
 
-重启 Claude Desktop 后即可使用。
+/mcp
+─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+  Manage MCP servers
+  1 server
 
-### Claude Code CLI
-
-在 `~/.claude/settings.json` 中添加 MCP 服务器配置：
-
-```json
-{
-  "mcpServers": {
-    "om-metrics": {
-      "command": "om-mcp"
-    }
-  }
-}
+    Project MCPs (/home/zj/claude/test/om-mcp/.mcp.json)
+  ❯ om-metrics · ✔ connected
 ```
+出现om-metrics表示安装成功
+
 
 ## 使用方式
 
