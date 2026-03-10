@@ -1,0 +1,52 @@
+tool:
+  name: get_issues_aggregate
+  description: >-
+    查询指定时间范围内的 Issue 聚合统计：总数、开启数、关闭数、关闭率、首次响应时长、关闭时长。支持 start_time/end_time
+    过滤，返回单一聚合值（不是月度列表）。适合：查某段时间内共提交/关闭了多少 Issue、平均响应时长等聚合问题。若需要月度趋势列表，请改用
+    get_community_contribute。
+http:
+  method: post
+  path: /query/issues/agg
+  use_extract_data: true
+  path_params: []
+  constant_params: {}
+params:
+  - name: community
+    type: str
+    default: ''
+    required: false
+    description: 社区名称（可选），如 openEuler、MindSpore
+    body_key: community
+    in: body
+    conditional: true
+    community_map: false
+  - name: start
+    type: int
+    default: ''
+    required: false
+    description: 开始时间，格式 毫秒级浮点数
+    body_key: start
+    in: body
+    conditional: true
+    community_map: false
+  - name: end
+    type: int
+    default: ''
+    required: false
+    description: 结束时间，格式 毫秒级浮点数
+    body_key: end
+    in: body
+    conditional: true
+    community_map: false
+  - name: interval
+    type: str
+    default: ''
+    required: false
+    description: 时间粒度（可选），支持 day/week/month，用于按时间段分组统计
+    body_key: interval
+    in: body
+    conditional: true
+    community_map: false
+empty_data_message: 暂无 Issue 聚合数据
+response:
+  type: branching

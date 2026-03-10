@@ -1,0 +1,28 @@
+tool:
+  name: get_community_health
+  description: |
+    查询指定社区的健康度指标数据，返回综合评分及各子指标分数。
+
+http:
+  method: get
+  path: /health/{community}/metric
+  use_extract_data: false
+  path_params:
+    - community
+  constant_params:
+    mode: general
+
+params:
+  - name: community
+    type: str
+    required: true
+    description: "社区名称，如 openEuler、MindSpore、CANN、openGauss 等，大小写不敏感"
+    in: path
+    conditional: false
+    community_map: true
+
+empty_data_message: "暂无健康度数据"
+
+response:
+  type: custom
+  formatter: format_community_health

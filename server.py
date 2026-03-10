@@ -1,23 +1,17 @@
 import sys
 import os
 sys.path.insert(0, os.path.dirname(__file__))
-
-from mcp.server.fastmcp import FastMCP
-import tools.health as health
 import tools.common as common
-import tools.server_apis as server_apis
-import tools.query_apis as query_apis
-import tools.cla_apis as cla_apis
-import tools.project_apis as project_apis
+
+from lib.template_loader import load_all_templates
+from lib.tool_generator import generate_all_tools
+from mcp.server.fastmcp import FastMCP
 
 mcp = FastMCP("om-metrics")
 
-health.register(mcp)
 common.register(mcp)
-server_apis.register(mcp)
-query_apis.register(mcp)
-cla_apis.register(mcp)
-project_apis.register(mcp)
+templates = load_all_templates()
+generate_all_tools(mcp, templates)
 
 def main():
     """命令行入口函数"""
