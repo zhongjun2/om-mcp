@@ -1,0 +1,27 @@
+
+tool:                                                                                                                                                                             
+  name: get_issues_aggregate          # Python 函数名（有效标识符）                                                                                                               
+  description: 查询指定时间范围内的 Issue 聚合统计...                      # 多行中文描述（出现在 docstring）                                                                                                                                                                                                                                            
+                                                                                                                                                                                  
+http:                                                                                                                                                                             
+  method: post                         # post | get                                                                                                                               
+  path: /query/issues/agg              # API 路径                                                                                                                                  
+  use_extract_data: true               # 是否调用 extract_data()（处理双层嵌套）                                                                                                  
+  path_params: []                      # 插入 URL 路径的参数名列表                                                                                                                
+  constant_params: {}                  # 始终合并到 body/query 的固定参数                                                                                                         
+                                                                                                                                                                                  
+params:                                                                                                                                                                           
+  - name: community                                                                                                                                                               
+    type: str                          # str | int                                                                                                                                
+    default: ""                        # 省略则为必填参数                                                                                                                         
+    required: false                                                                                                                                                               
+    description: "社区名称（可选），如 openEuler"                                                                                                                                 
+    body_key: community                # API 字段名（默认同 name，用于 pageSize 等别名）                                                                                          
+    in: body                           # body | query | path                                                                                                                      
+    conditional: true                  # true: 非空才加入请求体                                                                                                                   
+    community_map: false               # true: 用 COMMUNITY_MAP 验证并归一化                                                                                                      
+                                                                                                                                                                                  
+empty_data_message: "暂无 Issue 聚合数据"                                                                                                                                         
+                                                                                                                                                                                  
+response:                                                                                                                                                                         
+  type: branching                      # scalar | list | paginated_list | branching | custom 
