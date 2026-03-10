@@ -10,12 +10,14 @@ def _date_to_ms(date_str: str) -> int:
 
 
 def _build_time_body(start_date: str, end_date: str) -> dict:
-    """将日期字符串转为毫秒时间戳并放入 body。"""
-    body = {}
-    if start_date:
-        body["start"] = _date_to_ms(start_date)
-    if end_date:
-        body["end"] = _date_to_ms(end_date)
+    """将日期字符串转为毫秒时间戳并放入 body。未指定时默认近一年。"""
+    now = datetime.utcnow()
+    default_end = int(now.timestamp() * 1000)
+    default_start = int(now.replace(year=now.year - 1).timestamp() * 1000)
+    body = {
+        "start": _date_to_ms(start_date) if start_date else default_start,
+        "end": _date_to_ms(end_date) if end_date else default_end,
+    }
     return body
 
 
@@ -66,7 +68,7 @@ def register(mcp: FastMCP):
         body = _build_time_body(start_date, end_date)
         body.update({"pageNum": page_num, "pageSize": page_size})
         if community:
-            body["community"] = community
+            body["community"] = community.lower()
         if namespace:
             body["namespace"] = namespace
         if repo_path:
@@ -117,7 +119,7 @@ def register(mcp: FastMCP):
         """
         body = _build_time_body(start_date, end_date)
         if community:
-            body["community"] = community
+            body["community"] = community.lower()
         if category_name:
             body["category_name"] = category_name
         if tag_name:
@@ -161,7 +163,7 @@ def register(mcp: FastMCP):
         """
         body = _build_time_body(start_date, end_date)
         if community:
-            body["community"] = community
+            body["community"] = community.lower()
         if title:
             body["title"] = title
         if desc:
@@ -195,8 +197,9 @@ def register(mcp: FastMCP):
         repo_path: str = "",
         issue_type: str = "",
         source: str = "",
-        private: str = "",
-        desc: str = "open_count",
+        private: str = "false",
+        asc: str = "",
+        desc: str = "",
     ) -> str:
         """获取 Issue 汇总分页统计，支持按仓库/SIG/命名空间等维度分组。
 
@@ -204,30 +207,29 @@ def register(mcp: FastMCP):
             community: 社区名称（可选）
             start_date: 开始日期，格式 YYYY-MM-DD（可选）
             end_date: 结束日期，格式 YYYY-MM-DD（可选）
-            group_dim: 分组维度，如 repo/sig/namespace，默认 repo
+            group_dim: 分组维度，如 repo/sig/namespace/sub_community，默认 repo
             namespace: 命名空间筛选（可选）
             repo_path: 仓库路径筛选（可选）
             issue_type: Issue 类型筛选（可选）
             source: 来源平台（可选）
-            private: 是否私仓，true/false（可选）
-            desc: 降序字段，默认 open_count
+            private: 是否私仓，true/false，默认 false
+            asc: 升序字段（可选），如 one_day_response_ratio
+            desc: 降序字段（可选），如 open_count
         """
         body = _build_time_body(start_date, end_date)
-        body["group_dim"] = group_dim
-        if community:
-            body["community"] = community
-        if namespace:
-            body["namespace"] = namespace
-        if repo_path:
-            body["repo_path"] = repo_path
-        if issue_type:
-            body["issue_type"] = issue_type
-        if source:
-            body["source"] = source
-        if private:
-            body["private"] = private
-        if desc:
-            body["desc"] = desc
+        body.update({
+            "group_dim": group_dim,
+            "community": community.lower() if community else "",
+            "issue_type": issue_type,
+            "issue_type_list": [],
+            "namespace": namespace,
+            "repo_path": repo_path,
+            "source": source,
+            "internalList": [],
+            "private": private,
+            "asc": asc,
+            "desc": desc,
+        })
 
         result = await post("/query/issues/agg", body)
         if result.get("code") != 1:
@@ -269,7 +271,7 @@ def register(mcp: FastMCP):
         """
         body = _build_time_body(start_date, end_date)
         if community:
-            body["community"] = community
+            body["community"] = community.lower()
         if sig_name:
             body["sig_name"] = sig_name
         if issue_type:
@@ -327,7 +329,7 @@ def register(mcp: FastMCP):
         body = _build_time_body(start_date, end_date)
         body.update({"pageNum": page_num, "pageSize": page_size})
         if community:
-            body["community"] = community
+            body["community"] = community.lower()
         if namespace:
             body["namespace"] = namespace
         if repo_path:
@@ -387,7 +389,7 @@ def register(mcp: FastMCP):
         """
         body = _build_time_body(start_date, end_date)
         if community:
-            body["community"] = community
+            body["community"] = community.lower()
         if namespace:
             body["namespace"] = namespace
         if repo_path:
@@ -449,7 +451,7 @@ def register(mcp: FastMCP):
         body = _build_time_body(start_date, end_date)
         body["group_dim"] = group_dim
         if community:
-            body["community"] = community
+            body["community"] = community.lower()
         if namespace:
             body["namespace"] = namespace
         if repo:
@@ -506,7 +508,7 @@ def register(mcp: FastMCP):
         body = _build_time_body(start_date, end_date)
         body.update({"pageNum": page_num, "pageSize": page_size})
         if community:
-            body["community"] = community
+            body["community"] = community.lower()
         if namespace:
             body["namespace"] = namespace
         if repo_path:
@@ -554,7 +556,7 @@ def register(mcp: FastMCP):
         """
         body = _build_time_body(start_date, end_date)
         if community:
-            body["community"] = community
+            body["community"] = community.lower()
         if source:
             body["source"] = source
         if sig_list:
@@ -601,7 +603,7 @@ def register(mcp: FastMCP):
         body = _build_time_body(start_date, end_date)
         body.update({"pageNum": page_num, "pageSize": page_size})
         if community:
-            body["community"] = community
+            body["community"] = community.lower()
 
         result = await post("/query/users/page", body)
         if result.get("code") != 1:
@@ -644,7 +646,7 @@ def register(mcp: FastMCP):
         body = _build_time_body(start_date, end_date)
         body["interval"] = interval
         if community:
-            body["community"] = community
+            body["community"] = community.lower()
         if metric:
             body["metric"] = metric
         if event_list:
@@ -697,7 +699,7 @@ def register(mcp: FastMCP):
         """
         body = _build_time_body(start_date, end_date)
         if community:
-            body["community"] = community
+            body["community"] = community.lower()
         if source:
             body["source"] = source
         if group_dim:
@@ -758,7 +760,7 @@ def register(mcp: FastMCP):
         if end_date:
             body["endDate"] = _date_to_ms(end_date)
         if community:
-            body["community"] = community
+            body["community"] = community.lower()
         if source:
             body["source"] = source
         if metrics:
@@ -809,7 +811,7 @@ def register(mcp: FastMCP):
         body = _build_time_body(start_date, end_date)
         body.update({"pageNum": page_num, "pageSize": page_size})
         if community:
-            body["community"] = community
+            body["community"] = community.lower()
         if source:
             body["source"] = source
         if company:
@@ -845,7 +847,7 @@ def register(mcp: FastMCP):
         """
         body = {}
         if community:
-            body["community"] = community
+            body["community"] = community.lower()
         if tab:
             body["tab"] = tab
 
@@ -894,7 +896,7 @@ def register(mcp: FastMCP):
         body = _build_time_body(start_date, end_date)
         body.update({"pageNum": page_num, "pageSize": page_size})
         if community:
-            body["community"] = community
+            body["community"] = community.lower()
         if source:
             body["source"] = source
         if internal:
@@ -940,7 +942,7 @@ def register(mcp: FastMCP):
         body = _build_time_body(start_date, end_date)
         body["interval"] = interval
         if community:
-            body["community"] = community
+            body["community"] = community.lower()
         if source:
             body["source"] = source
         if company:
@@ -999,7 +1001,7 @@ def register(mcp: FastMCP):
             "private": private,
         })
         if community:
-            body["community"] = community
+            body["community"] = community.lower()
         if org_list:
             body["orgList"] = [o.strip() for o in org_list.split(",") if o.strip()]
 
@@ -1066,7 +1068,7 @@ def register(mcp: FastMCP):
             "private": private,
         })
         if community:
-            body["community"] = community
+            body["community"] = community.lower()
         if metric_val:
             body["metricVal"] = metric_val
         if source:
@@ -1120,7 +1122,7 @@ def register(mcp: FastMCP):
         body = _build_time_body(start_date, end_date)
         body.update({"pageNum": page_num, "pageSize": page_size})
         if community:
-            body["community"] = community
+            body["community"] = community.lower()
         if metric:
             body["metric"] = metric
         if source:
@@ -1175,7 +1177,7 @@ def register(mcp: FastMCP):
         body = _build_time_body(start_date, end_date)
         body["interval"] = interval
         if community:
-            body["community"] = community
+            body["community"] = community.lower()
         if metric:
             body["metric"] = metric
         if event_list:
@@ -1221,7 +1223,7 @@ def register(mcp: FastMCP):
         """
         body = {}
         if community:
-            body["community"] = community
+            body["community"] = community.lower()
         if tab:
             body["tab"] = tab
 

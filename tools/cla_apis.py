@@ -31,7 +31,7 @@ def register(mcp: FastMCP):
             order_dir: 排序方向 ASC/DESC，默认 DESC
         """
         body = {
-            "community": community,
+            "community": community.lower(),
             "page": page,
             "pageSize": page_size,
             "order_by": order_by,
@@ -61,37 +61,6 @@ def register(mcp: FastMCP):
         return "\n".join(lines)
 
     @mcp.tool()
-    async def get_cla_stats(
-        community: str = "openubmc",
-        start_time: str = "",
-        end_time: str = "",
-    ) -> str:
-        """获取 CLA 签署统计：总签署数、企业签署数、个人签署数。
-        适用于 PPT 展示社区 CLA 签署规模概览。
-
-        Args:
-            community: 社区名称，如 openubmc、openeuler 等，默认 openubmc
-            start_time: 开始时间，格式 YYYY-MM-DD（可选）
-            end_time: 结束时间，格式 YYYY-MM-DD（可选）
-        """
-        body = {"community": community}
-        if start_time:
-            body["start_time"] = start_time
-        if end_time:
-            body["end_time"] = end_time
-
-        result = await post("/cla/stats", body)
-        if result.get("code") != 1:
-            return f"API 错误：{result.get('message', '未知错误')}"
-        data = result.get("data", {})
-        return (
-            f"CLA 签署统计 - 社区：{community}：\n"
-            f"  总签署数：{data.get('total', 'N/A')}\n"
-            f"  企业签署：{data.get('enterprise', 'N/A')}\n"
-            f"  个人签署：{data.get('individual', 'N/A')}"
-        )
-
-    @mcp.tool()
     async def get_cla_trend(
         community: str = "openubmc",
         interval: str = "month",
@@ -107,7 +76,7 @@ def register(mcp: FastMCP):
             start_time: 开始时间，格式 YYYY-MM-DD（可选）
             end_time: 结束时间，格式 YYYY-MM-DD（可选）
         """
-        body = {"community": community, "interval": interval}
+        body = {"community": community.lower(), "interval": interval}
         if start_time:
             body["start_time"] = start_time
         if end_time:

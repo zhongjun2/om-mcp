@@ -1,5 +1,11 @@
+from datetime import datetime
 from mcp.server.fastmcp import FastMCP
 from lib.http import post, extract_data
+
+
+def _date_to_ms(date_str: str) -> int:
+    dt = datetime.strptime(date_str.strip(), "%Y-%m-%d")
+    return int(dt.timestamp() * 1000)
 
 
 def register(mcp: FastMCP):
@@ -15,13 +21,23 @@ def register(mcp: FastMCP):
             end_time: 结束时间，格式 YYYY-MM-DD（可选）
             interval: 时间粒度（可选），支持 day/week/month，用于按时间段统计
         """
-        body = {}
+        now = datetime.utcnow()
+        body = {
+            "start": _date_to_ms(start_time) if start_time else int(now.replace(year=now.year - 1).timestamp() * 1000),
+            "end": _date_to_ms(end_time) if end_time else int(now.timestamp() * 1000),
+            "group_dim": "sub_community",
+            "issue_type": "",
+            "issue_type_list": [],
+            "namespace": "",
+            "repo_path": "",
+            "source": "",
+            "internalList": [],
+            "private": "false",
+            "asc": "one_day_response_ratio",
+            "desc": "",
+        }
         if community:
-            body["community"] = community
-        if start_time:
-            body["start_time"] = start_time
-        if end_time:
-            body["end_time"] = end_time
+            body["community"] = community.lower()
         if interval:
             body["interval"] = interval
 
@@ -38,21 +54,22 @@ def register(mcp: FastMCP):
             for item in data:
                 lines.append(
                     f"  {item.get('time_bucket', 'N/A')}: "
-                    f"总数 {item.get('total_count', 0)}, "
+                    f"总数 {item.get('count', 0)}, "
                     f"关闭 {item.get('closed_count', 0)}, "
                     f"关闭率 {item.get('closed_ratio', 'N/A')}"
                 )
             return "\n".join(lines)
 
-        # 否则返回聚合数据
+        # 否则返回聚合数据（从 list[0] 提取）
+        item = data.get('list', [{}])[0] if isinstance(data, dict) else {}
         return (
             f"Issue 聚合统计：\n"
-            f"  总数：{data.get('total_count', 'N/A')}\n"
-            f"  开启中：{data.get('open_count', 'N/A')}\n"
-            f"  已关闭：{data.get('closed_count', 'N/A')}\n"
-            f"  关闭率：{data.get('closed_ratio', 'N/A')}\n"
-            f"  平均首次响应时长：{data.get('avg_first_reply_time', 'N/A')} 天\n"
-            f"  平均关闭时长：{data.get('avg_closed_time', 'N/A')} 天"
+            f"  总数：{item.get('count', 'N/A')}\n"
+            f"  开启中：{item.get('open_count', 'N/A')}\n"
+            f"  已关闭：{item.get('closed_count', 'N/A')}\n"
+            f"  关闭率：{item.get('closed_ratio', 'N/A')}\n"
+            f"  平均首次响应时长：{item.get('avg_first_reply_time', 'N/A')} 天\n"
+            f"  平均关闭时长：{item.get('avg_closed_time', 'N/A')} 天"
         )
 
     @mcp.tool()
@@ -65,13 +82,24 @@ def register(mcp: FastMCP):
             start_time: 开始时间，格式 YYYY-MM-DD（可选）
             end_time: 结束时间，格式 YYYY-MM-DD（可选）
         """
-        body = {}
+        now = datetime.utcnow()
+        body = {
+            "start": _date_to_ms(start_time) if start_time else int(now.replace(year=now.year - 1).timestamp() * 1000),
+            "end": _date_to_ms(end_time) if end_time else int(now.timestamp() * 1000),
+            "group_dim": "sig",
+            "issue_type": "",
+            "issue_type_list": [],
+            "namespace": "",
+            "sig_name": "",
+            "sig_name_list": [],
+            "source": "",
+            "internalList": [],
+            "private": "false",
+            "asc": "",
+            "desc": "count",
+        }
         if community:
-            body["community"] = community
-        if start_time:
-            body["start_time"] = start_time
-        if end_time:
-            body["end_time"] = end_time
+            body["community"] = community.lower()
 
         result = await post("/query/issues/agg/sig", body)
         if result.get("code") != 1:
@@ -100,13 +128,20 @@ def register(mcp: FastMCP):
             end_time: 结束时间，格式 YYYY-MM-DD（可选）
             interval: 时间粒度（可选），支持 day/week/month，用于按时间段统计
         """
-        body = {}
+        now = datetime.utcnow()
+        body = {
+            "start": _date_to_ms(start_time) if start_time else int(now.replace(year=now.year - 1).timestamp() * 1000),
+            "end": _date_to_ms(end_time) if end_time else int(now.timestamp() * 1000),
+            "group_dim": "",
+            "pr_type": "",
+            "namespace": "",
+            "repo": "",
+            "private": "false",
+            "asc": "",
+            "desc": "",
+        }
         if community:
-            body["community"] = community
-        if start_time:
-            body["start_time"] = start_time
-        if end_time:
-            body["end_time"] = end_time
+            body["community"] = community.lower()
         if interval:
             body["interval"] = interval
 
@@ -123,23 +158,24 @@ def register(mcp: FastMCP):
             for item in data:
                 lines.append(
                     f"  {item.get('time_bucket', 'N/A')}: "
-                    f"总数 {item.get('total_count', 0)}, "
+                    f"总数 {item.get('count', 0)}, "
                     f"合并 {item.get('merged_count', 0)}, "
                     f"合并率 {item.get('merged_ratio', 'N/A')}"
                 )
             return "\n".join(lines)
 
-        # 否则返回聚合数据
+        # 否则从 list[0] 提取聚合数据
+        item = data.get('list', [{}])[0] if isinstance(data, dict) else {}
         return (
             f"PR 聚合统计：\n"
-            f"  总数：{data.get('total_count', 'N/A')}\n"
-            f"  开启中：{data.get('open_count', 'N/A')}\n"
-            f"  已关闭：{data.get('closed_count', 'N/A')}\n"
-            f"  已合并：{data.get('merged_count', 'N/A')}\n"
-            f"  关闭率：{data.get('closed_ratio', 'N/A')}\n"
-            f"  合并率：{data.get('merged_ratio', 'N/A')}\n"
-            f"  平均首次响应时长：{data.get('avg_first_reply_time', 'N/A')} 天\n"
-            f"  平均关闭时长：{data.get('avg_closed_time', 'N/A')} 天"
+            f"  总数：{item.get('count', 'N/A')}\n"
+            f"  开启中：{item.get('open_count', 'N/A')}\n"
+            f"  已关闭：{item.get('closed_count', 'N/A')}\n"
+            f"  已合并：{item.get('merged_count', 'N/A')}\n"
+            f"  关闭率：{item.get('closed_ratio', 'N/A')}\n"
+            f"  合并率：{item.get('merged_ratio', 'N/A')}\n"
+            f"  平均首次响应时长：{item.get('avg_first_reply_time', 'N/A')} 天\n"
+            f"  平均关闭时长：{item.get('avg_closed_time', 'N/A')} 天"
         )
 
     @mcp.tool()
@@ -152,13 +188,20 @@ def register(mcp: FastMCP):
             start_time: 开始时间，格式 YYYY-MM-DD（可选）
             end_time: 结束时间，格式 YYYY-MM-DD（可选）
         """
-        body = {}
+        now = datetime.utcnow()
+        body = {
+            "start": _date_to_ms(start_time) if start_time else int(now.replace(year=now.year - 1).timestamp() * 1000),
+            "end": _date_to_ms(end_time) if end_time else int(now.timestamp() * 1000),
+            "group_dim": "sig",
+            "pr_type": "",
+            "namespace": "",
+            "sig_name": "",
+            "private": "false",
+            "asc": "",
+            "desc": "",
+        }
         if community:
-            body["community"] = community
-        if start_time:
-            body["start_time"] = start_time
-        if end_time:
-            body["end_time"] = end_time
+            body["community"] = community.lower()
 
         result = await post("/query/prs/agg/sig", body)
         if result.get("code") != 1:
@@ -187,9 +230,20 @@ def register(mcp: FastMCP):
             page: 页码，默认 1
             page_size: 每页数量，默认 10
         """
-        body = {"page": page, "page_size": page_size}
+        now = datetime.utcnow()
+        body = {
+            "start": int(now.replace(year=now.year - 1).timestamp() * 1000),
+            "end": int(now.timestamp() * 1000),
+            "namespace": "",
+            "repo_path": "",
+            "private": "false",
+            "asc": "",
+            "desc": "in_user_count",
+            "pageNum": page,
+            "pageSize": page_size,
+        }
         if community:
-            body["community"] = community
+            body["community"] = community.lower()
 
         result = await post("/query/repo/user/page", body)
         if result.get("code") != 1:

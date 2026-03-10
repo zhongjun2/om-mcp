@@ -1,6 +1,12 @@
 import json
+from datetime import datetime
 from mcp.server.fastmcp import FastMCP
 from lib.http import get, post, extract_data
+
+
+def _date_to_ms(date_str: str) -> int:
+    dt = datetime.strptime(date_str.strip(), "%Y-%m-%d")
+    return int(dt.timestamp() * 1000)
 
 
 def register(mcp: FastMCP):
@@ -34,7 +40,12 @@ def register(mcp: FastMCP):
     @mcp.tool()
     async def get_project_hotspot() -> str:
         """获取最近更新的热点仓库列表（按更新时间倒序前10个）。适用于 PPT 展示社区近期热点动态。"""
-        result = await post("/project/hotspot")
+        now = datetime.utcnow()
+        body = {
+            "start": int(now.replace(year=now.year - 1).timestamp() * 1000),
+            "end": int(now.timestamp() * 1000),
+        }
+        result = await post("/project/hotspot", body)
         if result.get("code") != 1:
             return f"API 错误：{result.get('message', '未知错误')}"
         data = extract_data(result)
@@ -48,7 +59,12 @@ def register(mcp: FastMCP):
     @mcp.tool()
     async def get_project_repo_list() -> str:
         """获取仓库列表（最近更新的 50 个）。适用于 PPT 展示社区仓库规模总览。"""
-        result = await post("/project/repolist")
+        now = datetime.utcnow()
+        body = {
+            "start": int(now.replace(year=now.year - 1).timestamp() * 1000),
+            "end": int(now.timestamp() * 1000),
+        }
+        result = await post("/project/repolist", body)
         if result.get("code") != 1:
             return f"API 错误：{result.get('message', '未知错误')}"
         data = extract_data(result)
@@ -62,7 +78,12 @@ def register(mcp: FastMCP):
     @mcp.tool()
     async def get_project_active() -> str:
         """获取活跃仓库统计（总仓库数、活跃数、非活跃数）。适用于 PPT 展示社区整体活跃情况。"""
-        result = await post("/project/active")
+        now = datetime.utcnow()
+        body = {
+            "start": int(now.replace(year=now.year - 1).timestamp() * 1000),
+            "end": int(now.timestamp() * 1000),
+        }
+        result = await post("/project/active", body)
         if result.get("code") != 1:
             return f"API 错误：{result.get('message', '未知错误')}"
         data = extract_data(result)
@@ -84,23 +105,30 @@ def register(mcp: FastMCP):
             start_time: 开始时间，格式 YYYY-MM-DD（可选）
             end_time: 结束时间，格式 YYYY-MM-DD（可选）
         """
-        body = {}
-        if community:
-            body["community"] = community
-        if start_time:
-            body["start_time"] = start_time
-        if end_time:
-            body["end_time"] = end_time
+        now = datetime.utcnow()
+        body = {
+            "start": _date_to_ms(start_time) if start_time else int(now.replace(year=now.year - 1).timestamp() * 1000),
+            "end": _date_to_ms(end_time) if end_time else int(now.timestamp() * 1000),
+            "event": "pr",
+            "metric": "company",
+            "orgList": [],
+            "private": "false",
+            "community": community.lower() if community else "",
+        }
 
-        result = await post("/project/topn/company/pr", body)
+        result = await post("/query/contributes/topn/total", body)
         if result.get("code") != 1:
             return f"API 错误：{result.get('message', '未知错误')}"
         data = extract_data(result)
         if not data:
             return "暂无企业 PR 贡献数据"
+        items = data if isinstance(data, list) else data.get("list", [])
         lines = ["企业 PR 贡献 Top 排名："]
-        for i, item in enumerate(data, 1):
-            lines.append(f"  {i}. {item.get('company')} — {item.get('count')} 个 PR（占比 {item.get('percentage')}%）")
+        for i, item in enumerate(items, 1):
+            rank = item.get("row_num", i)
+            company = item.get("company", "N/A")
+            count = item.get("pr_total", 0)
+            lines.append(f"  {rank}. {company} — {count} 个 PR")
         return "\n".join(lines)
 
     @mcp.tool()
@@ -112,23 +140,26 @@ def register(mcp: FastMCP):
             start_time: 开始时间，格式 YYYY-MM-DD（可选）
             end_time: 结束时间，格式 YYYY-MM-DD（可选）
         """
-        body = {}
-        if community:
-            body["community"] = community
-        if start_time:
-            body["start_time"] = start_time
-        if end_time:
-            body["end_time"] = end_time
+        now = datetime.utcnow()
+        body = {
+            "start": _date_to_ms(start_time) if start_time else int(now.replace(year=now.year - 1).timestamp() * 1000),
+            "end": _date_to_ms(end_time) if end_time else int(now.timestamp() * 1000),
+            "source": "",
+            "internal": "",
+            "pageNum": 1,
+            "pageSize": 1,
+            "community": community.lower() if community else "",
+        }
 
-        result = await post("/project/topn/company/pr", body)
+        result = await post("/query/company/detail", body)
         if result.get("code") != 1:
             return f"API 错误：{result.get('message', '未知错误')}"
         data = extract_data(result)
         if not data:
             return "暂无组织数据"
 
-        companies = data if isinstance(data, list) else []
-        return f"参与贡献的组织/企业总数：{len(companies)}"
+        total = data.get("total_count", "N/A") if isinstance(data, dict) else "N/A"
+        return f"参与贡献的组织/企业总数：{total}"
 
     @mcp.tool()
     async def get_project_topn_user_pr() -> str:

@@ -18,8 +18,14 @@ async def get(path: str, params: dict = None, base_url: str = API_BASE_URL) -> d
 
 async def post(path: str, body: dict = None, base_url: str = API_BASE_URL) -> dict:
     try:
+        import json as _json
+        url = f"{base_url}{path}"
+        payload = body or {}
+        with open("/tmp/om_mcp_debug.log", "a") as _f:
+            _f.write(f"[POST] URL: {url}\n")
+            _f.write(f"[POST] Body: {_json.dumps(payload, ensure_ascii=False)}\n")
         async with httpx.AsyncClient(timeout=30) as client:
-            resp = await client.post(f"{base_url}{path}", json=body or {})
+            resp = await client.post(url, json=payload)
             resp.raise_for_status()
             return resp.json()
     except httpx.HTTPStatusError as e:
