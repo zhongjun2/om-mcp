@@ -3,6 +3,7 @@
 
 import asyncio
 
+from lib.apidocs_loader import load_apidocs_templates
 from lib.tool_generator import _build_docstring, _build_signature, _make_tool_function, generate_all_tools
 from lib.template_loader import load_all_templates
 from mcp.server.fastmcp import FastMCP
@@ -11,9 +12,10 @@ from mcp.server.fastmcp import FastMCP
 def test_templates_loaded():
     """测试模板加载是否成功."""
     templates = load_all_templates()
+    templates += load_apidocs_templates()
     print(f"✓ 加载了 {len(templates)} 个模板")
     for t in templates:
-        print(f"  - {t.name}: {t.description[:60]}...")
+        print(f"  - {t.name}: {t.description}...")
     assert len(templates) > 0, "模板加载失败"
     return templates
 
@@ -21,6 +23,7 @@ def test_templates_loaded():
 def test_tool_function_generation():
     """测试工具函数生成是否成功."""
     templates = load_all_templates()
+    templates += load_apidocs_templates()
     for template in templates:
         tool_fn = _make_tool_function(template)
         assert tool_fn.__name__ == template.name, f"工具名称不匹配：{tool_fn.__name__}"
@@ -33,6 +36,7 @@ def test_mcp_registration():
     """测试工具是否成功注册到 MCP."""
     mcp = FastMCP("test-om-metrics")
     templates = load_all_templates()
+    templates += load_apidocs_templates()
     
     before_count = len(mcp._tool_manager._tools) if hasattr(mcp._tool_manager, '_tools') else 0
     print(f"注册前工具数：{before_count}")
@@ -57,6 +61,7 @@ def test_mcp_registration():
 async def test_tool_execution():
     """测试工具函数能否正常执行."""
     templates = load_all_templates()
+    templates += load_apidocs_templates()
     if not templates:
         return
     
@@ -76,6 +81,7 @@ def test_param_signature():
     """测试参数签名生成是否正确."""
     
     templates = load_all_templates()
+    templates += load_apidocs_templates()
     for template in templates:
         sig = _build_signature(template)
         print(f"✓ 工具 {template.name} 签名：{sig}")
@@ -85,6 +91,7 @@ def test_docstring_generation():
     """测试 docstring 生成是否正确."""
     
     templates = load_all_templates()
+    templates += load_apidocs_templates()
     for template in templates:
         docstring = _build_docstring(template)
         print(f"✓ 工具 {template.name} docstring 第一行：{docstring.split(chr(10))[0]}")

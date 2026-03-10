@@ -3,14 +3,14 @@ import os
 sys.path.insert(0, os.path.dirname(__file__))
 import tools.common as common
 
-from lib.template_loader import load_all_templates
 from lib.tool_generator import generate_all_tools
+from lib.apidocs_loader import load_apidocs_templates
 from mcp.server.fastmcp import FastMCP
 
 mcp = FastMCP("om-metrics")
 
 common.register(mcp)
-templates = load_all_templates()
+templates = load_apidocs_templates()
 generate_all_tools(mcp, templates)
 
 def main():

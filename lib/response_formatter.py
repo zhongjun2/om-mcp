@@ -100,7 +100,11 @@ def _format_list(data: Any, config: Dict[str, Any], call_params: Dict[str, Any])
     for i, item in enumerate(transformed_data, 1):
         if isinstance(item, dict):
             context = {"index": i, **item, **call_params}
-            lines.append(item_template.format_map(context))
+            try:
+                lines.append(item_template.format_map(context))
+            except KeyError:
+                pairs = ", ".join(f"{k}={v}" for k, v in item.items())
+                lines.append(f"  {i}. {pairs}")
         else:
             lines.append(f"  {i}. {item}")
 
@@ -136,7 +140,11 @@ def _format_paginated_list(data: Any, config: Dict[str, Any], call_params: Dict[
     for i, item in enumerate(items, 1):
         if isinstance(item, dict):
             context = {"index": i, **item, **call_params}
-            lines.append(item_template.format_map(context))
+            try:
+                lines.append(item_template.format_map(context))
+            except KeyError:
+                pairs = ", ".join(f"{k}={v}" for k, v in item.items())
+                lines.append(f"  {i}. {pairs}")
         else:
             lines.append(f"  {i}. {item}")
 
