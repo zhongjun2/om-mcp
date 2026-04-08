@@ -139,7 +139,7 @@ def _infer_params(params_list: list, param_type: str) -> List[ParamDef]:
             body_key=item.get("name"),
             in_=param_type,
             conditional=True,
-            community_map=False,
+            is_community= item.get("name") == "community",
         ))
     return params
 

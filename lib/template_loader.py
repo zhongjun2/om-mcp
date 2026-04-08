@@ -14,7 +14,7 @@ class ParamDef:
     body_key: str       # API 字段名（默认同 name）
     in_: str            # 'body' | 'query' | 'path'
     conditional: bool   # true: 非空才加入请求体
-    community_map: bool # true: 用 COMMUNITY_MAP 验证并归一化
+    is_community: bool  # true: 是否是社区参数
 
 
 @dataclass
@@ -77,7 +77,7 @@ def _parse_template(data: dict, filename: str) -> ToolTemplate:
             body_key=p.get("body_key", name),
             in_=p.get("in", "body"),
             conditional=p.get("conditional", False),
-            community_map=p.get("community_map", False),
+            is_community=name == "community",
         ))
 
     http_method = http.get("method", "post").lower()

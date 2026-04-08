@@ -19,7 +19,7 @@ params:
     body_key: community                # API 字段名（默认同 name，用于 pageSize 等别名）                                                                                          
     in: body                           # body | query | path                                                                                                                      
     conditional: true                  # true: 非空才加入请求体                                                                                                                   
-    community_map: false               # true: 用 COMMUNITY_MAP 验证并归一化                                                                                                      
+    is_community: false                # true: 是社区参数（会用于生成 token）                                                                                                    
                                                                                                                                                                                   
 empty_data_message: "暂无 Issue 聚合数据"                                                                                                                                         
                                                                                                                                                                                   

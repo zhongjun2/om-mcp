@@ -24,16 +24,18 @@ def _make_tool_function(template: ToolTemplate):
     async def tool_fn(**kwargs):
         # 1. COMMUNITY_MAP 归一化
         normalized_params = {}
+        community = None
         for param_def in template.params:
             value = kwargs.get(param_def.name, param_def.default)
 
-            if param_def.community_map and value:
+            if param_def.is_community and value:
                 key = str(value).strip().lower()
                 mapped = COMMUNITY_MAP.get(key)
                 if not mapped:
                     available = ", ".join(sorted(COMMUNITY_MAP.keys()))
                     return f"未找到社区 '{value}'，可用社区（小写）：{available}"
                 value = mapped.lower()
+                community = value  # 提取 community 用于后续 API 调用
 
             normalized_params[param_def.name] = value
 
@@ -79,9 +81,9 @@ def _make_tool_function(template: ToolTemplate):
 
         # 4. 调用 HTTP 方法
         if template.http_method == "post":
-            result = await post(url_path, body_params if body_params else None)
+            result = await post(path=url_path, body=body_params if body_params else None, community=community)
         else:
-            result = await get(url_path, params=query_params if query_params else None)
+            result = await get(path=url_path, params=query_params if query_params else None, community=community)
 
         # 5. 错误检查
         if result.get("code") != 1:
