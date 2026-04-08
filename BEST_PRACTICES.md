@@ -179,4 +179,81 @@ get_meeting_participants_info(
 | 15 | 邓晓豫 |
 | 16 | 陈正 |
 
+---
+
+## 案例：查询 SIG 组成员信息
+
+### 关键字段说明
+
+返回数据按角色分组，每个角色包含用户列表：
+
+| 字段 | 含义 |
+|------|------|
+| `role` | 角色类型（committer/maintainer） |
+| `users` | 该角色的用户列表 |
+| `user_name` | 用户显示名称 |
+| `user_login` | 用户登录名 |
+| `email` | 用户邮箱 |
+| `organization` | 所属组织（可选） |
+
+### 实际查询结果示例
+
+**openeuler 社区 Infrastructure SIG 组成员信息**：
+
+**Committer（11人）**：
+
+| 序号 | 用户名 | 登录名 | 邮箱 | 组织 |
+|------|--------|--------|------|------|
+| 1 | ctyunsystem | ctyunsystem | ctyuncommiter05@chinatelecom.cn | - |
+| 2 | Se7en | liuqi469227928 | 469227928@qq.com | - |
+| 3 | luweijun | lu-wei-army | wjunlu217@gmail.com | - |
+| 4 | lichaoran | mywaaagh_admin | pkwarcraft@hotmail.com | - |
+| 5 | TommyLike | TommyLike | tommylikehu@gmail.com | - |
+| 6 | Tom | weixin_43493709 | tom_toworld@163.com | - |
+| 7 | wenhao7 | wenhao7 | owen813@126.com | - |
+| 8 | wukaishuns | wuzimo | wuksh@chinatelecom.cn | - |
+| 9 | youyifeng | youyifeng | youyf2@chinatelecom.cn | - |
+| 10 | Zheng Zhenyu | ZhengZhenyu | zheng.zhenyu@outlook.com | - |
+| 11 | Yi Zhou | Zherphy | zhouyi198@h-partners.com | Huawei |
+| 12 | zhaiwenjie | zwjsec | zhaiwenjiesec@163.com | - |
+
+**Maintainer（7人）**：
+
+| 序号 | 用户名 | 登录名 | 邮箱 | 组织 |
+|------|--------|--------|------|------|
+| 1 | Maquanyi | genedna | eli@patch.sh | - |
+| 2 | George.Cao | georgecao | caozhi1214@qq.com | Huawei |
+| 3 | imjoey | imjoey1 | majunjie@apache.org | - |
+| 4 | TommyLike | TommyLike | tommylikehu@gmail.com | - |
+| 5 | Yikun Jiang | yikunkero | yikunkero@gmail.com | - |
+| 6 | zhongjun2 | zhongjun2 | 526521735@qq.com | - |
+| 7 | Trainey | zhuchunyi | zhuchunyi@huawei.com | - |
+
+> **注意**：部分用户可能同时属于多个角色（如 TommyLike 同时是 committer 和 maintainer），这是正常现象。
+
+---
+
+## 案例：查询社区所有 SIG 组名称
+
+### 实际查询结果示例
+
+**openUBMC 社区所有 SIG 组（12个）**：
+
+| 序号 | SIG 组名称 |
+|------|-----------|
+| 1 | infrastructure |
+| 2 | sig-ai |
+| 3 | sig-bmc-core |
+| 4 | sig-CICD |
+| 5 | sig-component-drivers |
+| 6 | sig-docs |
+| 7 | sig-hardware |
+| 8 | sig-interface |
+| 9 | sig-QA |
+| 10 | sig-release-management |
+| 11 | sig-security |
+| 12 | TC |
+
+> **注意**：TC（Technical Committee）通常作为技术委员会单独列出，不属于常规 SIG 组。
+
 

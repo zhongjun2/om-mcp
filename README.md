@@ -196,6 +196,44 @@ MindSpore 和 openGauss 的 Issue 关闭率对比
 
 详细的开发者安装指南请参考 [INSTALL.md](INSTALL.md)。
 
+### 环境变量配置
+
+项目需要设置 `MAGIC_API_TOKEN` 环境变量才能正常工作。
+
+**设置方式（推荐）**
+
+**方式 1：临时设置（当前会话有效）**
+
+```bash
+export MAGIC_API_TOKEN=your_token_here
+```
+
+**方式 2：永久设置（写入 Shell 配置）**
+
+在 `~/.bashrc` 或 `~/.zshrc` 中添加：
+
+```bash
+export MAGIC_API_TOKEN=your_token_here
+```
+
+然后运行：
+```bash
+source ~/.bashrc  # 或 source ~/.zshrc
+```
+
+
+**验证配置**
+
+```bash
+echo $MAGIC_API_TOKEN  # 应显示你的 token 值
+```
+
+**安全提示：**
+- ⚠️ **切勿将 `.env` 或 `.envrc` 文件提交到 Git 仓库**
+- ⚠️ **切勿在代码中硬编码 token**
+- ✅ 使用环境变量或安全的密钥管理工具
+- ✅ 项目已将 `.env` 添加到 `.gitignore`
+
 ### 项目结构
 
 ```
