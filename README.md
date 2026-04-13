@@ -238,22 +238,57 @@ echo $MAGIC_API_TOKEN  # 应显示你的 token 值
 
 ```
 om-mcp/
-├── server.py            # MCP 服务器入口
+├── server.py              # MCP 服务器入口
 ├── lib/
-│   └── http.py         # HTTP 请求封装
+│   ├── http.py           # HTTP 请求封装
+│   ├── apidocs_loader.py # API 文档加载器（从 .ms 文件解析）
+│   ├── template_loader.py # 工具模板加载器（YAML 配置）
+│   ├── tool_generator.py  # 动态工具生成器
+│   └── response_formatter.py # 响应格式化
 ├── tools/
-│   ├── health.py       # 社区健康度查询
-│   ├── common.py       # 通用工具（社区列表）
-│   ├── server_apis.py  # 服务端 API（社区列表、指标字典、热点仓库等）
-│   ├── query_apis.py   # 查询 API（PR/Issue 聚合、按 SIG 统计等）
-│   ├── cla_apis.py     # CLA 相关 API
-│   └── project_apis.py # 项目 CI 指标
-└── test/               # 测试目录
-    ├── test_mcp.py     # 测试脚本
-    └── README.md       # 测试说明
+│   ├── health.py         # 社区健康度查询
+│   ├── common.py         # 通用工具（社区列表）
+│   ├── server_apis.py    # 服务端 API（社区列表、指标字典、热点仓库等）
+│   ├── query_apis.py     # 查询 API（PR/Issue 聚合、按 SIG 统计等）
+│   ├── cla_apis.py       # CLA 相关 API
+│   ├── project_apis.py   # 项目 CI 指标
+│   └── general_apis.py   # 通用查询 API
+├── api-docs/              # API 文档目录（自动生成工具）
+│   ├── datastat/          # datastat 模块 API
+│   └── 社区运营质量/       # 社区运营质量模块 API
+└── test/                  # 测试目录
+    ├── test_mcp.py        # 测试脚本
+    └── README.md          # 测试说明
 ```
 
-### 添加新工具
+### 自动工具注册机制
+
+项目支持从 API 文档自动生成 MCP 工具，无需手动编写工具函数。
+
+#### 工作原理
+
+1. **API 文档加载** (`lib/apidocs_loader.py`)
+   - 从 `api-docs/` 目录加载 `.ms` 格式的 API 文档
+   - 解析文档中的 HTTP 路径、方法、参数定义
+   - 生成 `ToolTemplate` 数据结构
+
+2. **工具函数生成** (`lib/tool_generator.py`)
+   - 根据 `ToolTemplate` 动态生成异步工具函数
+   - 自动处理参数类型转换、社区名称归一化、路径参数替换
+   - 注册到 FastMCP 实例
+
+3. **特殊处理**
+   - **路径参数**：如 `/{contributeType}/detail` 中的 `contributeType` 会被识别为路径参数
+   - **工具命名**：路径参数占位符 `{xxx}` 会被替换为 `xxx`，避免生成多个工具
+   - **社区归一化**：自动将社区名称映射为标准格式
+
+#### 添加新 API 工具
+
+只需在 `api-docs/` 目录下添加 `.ms` 文档文件，重启服务即可自动注册。
+
+### 手动添加工具
+
+对于复杂的业务逻辑，仍可手动编写工具函数：
 
 1. 在 `tools/` 目录下创建新的 Python 文件
 2. 定义 `register(mcp: FastMCP)` 函数
