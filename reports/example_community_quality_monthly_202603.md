@@ -110,6 +110,41 @@
 
 > 贡献组织数从 53 个降至 38 个（-28.3%），春节假期导致部分企业贡献者活跃度下降，需关注 3月节后的组织多样性恢复情况。openEuler 整体多样性水平仍明显高于其他社区。
 
+### 9.1 真实贡献组织名单及月度增减
+
+> 口径说明：上表「贡献组织数」沿用历史口径（含机器人、个人贡献者，仅为环比连续性保留，数字不改）。本小节为**真实组织**口径——剔除机器人（如 CI bot）与「个人贡献者」，仅统计当期有真实 pr/issue/comment 贡献的组织，故数量通常小于上表（示例：当期真实 N 家 / 上期 M 家）。数据源 `post_query_contributes_page`（metric=company），与历史 count 同表同源（`dwm_<c>_company` + `dws_<c>_contribute_company_daily`）。
+>
+> 注：本示例为模板，组织名一律用 `xxx` 占位；按真实社区生成的正式报告会填真实组织名。
+
+**2月（当期）真实贡献组织（示例 N 家）**
+
+  - xxx公司A（xxx；pr 542 / issue 216 / comment 2739）
+  - xxx公司B（企业；pr 13 / issue 4 / comment 28）
+  - xxx公司C（企业；pr 5 / issue 0 / comment 1）
+  - …（其余真实组织依次列出）
+
+**1月（上期）真实贡献组织（示例 M 家）**
+
+  - xxx公司A（xxx；pr 474 / issue 471 / comment 2771）
+  - xxx公司B（企业；pr 17 / issue 0 / comment 96）
+  - xxx公司D（企业；pr 4 / issue 9 / comment 36）
+  - …（其余真实组织依次列出）
+
+**🟢 本月新加入（上期无、当期有）：1**
+
+  - xxx公司C（企业；pr 5 / issue 0 / comment 1）
+
+**🔴 本月退出（上期有、当期无）：2**
+
+  - xxx公司D（企业；pr 4 / issue 9 / comment 36）
+  - xxx公司E（企业；pr 1 / issue 0 / comment 0）
+
+**⚪ 两月持续贡献：N-1**
+
+  - xxx公司A
+  - xxx公司B
+  - …（其余持续贡献组织）
+
 ---
 
 ## 十、主流平台搜索指数
