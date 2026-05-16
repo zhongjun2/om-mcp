@@ -181,7 +181,7 @@ A: 使用默认值 `""`，在函数内部用 `if param:` 判断是否传入。
 | 9 | 论坛平均首次响应时间（平均值、中位数）（天） | `get_stats_forum()` | `avg_first_reply_time`, `median_first_reply_time` |
 | 10 | 论坛平均闭环时间（平均值、中位数）（天） | `get_stats_forum()` | `avg_closed_time`, `median_closed_time` |
 | 11 | 版本稳定发布偏差 | `get_stats_health_metric(metric=version_release)` | `avg` |
-| 12 | 社区组织多样性 | `get_stats_company(interval=month)` | `count` |
+| 12 | 社区组织多样性 | `get_stats_company(interval=month)`（旧 count，保留）；明细名单及增减用 `post_query_contributes_page(metric=company)` | `count`；`company` / `pr_total` / `issue_total` / `comment_total` |
 | 13 | 主流平台搜索指数 | `get_stats_influence(interval=month)` | `avg_index` |
 | 14 | 社区严重缺陷数 | `get_stats_cve()` | `total_count` |
 | 15 | 负向事件数量 | `get_stats_negative_event()` | `total_count` |
@@ -241,10 +241,25 @@ A: 使用默认值 `""`，在函数内部用 `if param:` 判断是否传入。
   | 9 | 论坛平均/中位首次响应时长（天） | ✅ |
   | 10 | 论坛平均/中位关闭时长（天） | ✅ |
   | 11 | 版本稳定发布偏差 | ✅ |
-  | 12 | 社区组织多样性（贡献组织数） | ✅ |
+  | 12 | 社区组织多样性（贡献组织数 **+ 9.1 真实组织名单及月度增减**） | ✅ |
   | 13 | 主流平台搜索指数 | ✅ |
   | 14 | 社区严重缺陷数 | ✅ |
   | 15 | 负向事件数量 | ✅ |
+
+### 「九、社区组织多样性」章节生成规范（含 9.1 真实组织名单）
+
+报告第九章在原「贡献组织数」count 表/结论之外，**必须追加 `### 9.1 真实贡献组织名单及月度增减` 小节**：
+
+- **旧 count 表与结论原样保留**：沿用历史口径（`count` 含机器人、个人贡献者），仅为环比连续性，**不要改它的数字**，否则历史报告无法对比。
+- **9.1 数据来源**：`post_query_contributes_page`，body 关键字段 `metric=company`、`community=<社区>`、`start`/`end` 为**统计月自然月**毫秒时间戳（东八区，规则同上文「时间戳计算规则」）、`pageSize` 给足（如 1000）、`source`/`private` 留空。当期月、上期月各拉一次。与旧 count 同表同源（`dwm_<c>_company` + `dws_<c>_contribute_company_daily`）。
+- **清洗口径（务必一致）**：
+  1. 「真实贡献」= `pr_total + issue_total + comment_total > 0`（接口对维表 LEFT JOIN，会带出本期 0 贡献的公司，必须按此过滤）；
+  2. 剔除机器人：`company` 或 `company_type` 命中 `bot`/`robot`/`机器人`/`ci-bot`/`noreply`/`github-actions`/`dependabot` 等；
+  3. 剔除非公司占位：`company` 为 `个人贡献者`/`个人开发者`/空。
+- **9.1 必须呈现**：当期真实组织名单、上期真实组织名单、🟢 本月新加入、🔴 本月退出、⚪ 两月持续；并在小节开头写**口径说明**（注明与上表 count 不同的原因 + 同表同源），避免读者误解环比断层。
+- **隐私**：报告模板/示例（如 `example_*`）里公司名一律用 `xxx` 占位，**真实公司名只出现在按真实社区生成的正式报告里，不写进模板与本规范**。
+
+> 参考实现：`metrics/data_req_tmp/render_org_diversity_section.py`（通用，传 社区+当期+上期 即出本章节）。
 
 ## 参考资料
 
