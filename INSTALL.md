@@ -123,6 +123,37 @@ pip install -e .
 }
 ```
 
+### Q: 接口超时怎么办？
+
+A: 默认超时时间为 60 秒。如果某些接口（如 `/stats/cve`、`/stats/negative_event` 等）超时，可以通过环境变量调整：
+
+```bash
+# 设置超时时间为 120 秒
+export MCP_TIMEOUT=120
+python server.py
+```
+
+或在启动命令中设置：
+
+```json
+{
+  "mcpServers": {
+    "om-metrics": {
+      "command": "python3",
+      "args": ["server.py"],
+      "env": {
+        "MCP_TIMEOUT": "120"
+      }
+    }
+  }
+}
+```
+
+建议超时时间：
+- 60 秒：适合大多数场景（默认）
+- 90-120 秒：适合大型社区或复杂查询
+- 180 秒：适合极端情况（谨慎使用）
+
 ## 开发测试
 
 运行测试脚本验证功能：
