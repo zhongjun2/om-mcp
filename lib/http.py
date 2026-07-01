@@ -22,6 +22,11 @@ def _get_mcp_key() -> str:
     return os.getenv("MAGIC_API_TOKEN", "")
 
 
+def _get_timeout() -> int:
+    """从环境变量获取超时时间（秒），默认 60"""
+    return int(os.getenv("MCP_TIMEOUT", "60"))
+
+
 async def get(
     path: str, params: dict = None, base_url: str = API_BASE_URL, community: str = ""
 ) -> dict:
@@ -31,8 +36,12 @@ async def get(
     if mcp_key:
         headers["mcp-key"] = mcp_key
     logger.info("GET %s params=%s", url, params)
+    
+    # 使用环境变量配置的超时时间
+    timeout = _get_timeout()
+    
     try:
-        async with httpx.AsyncClient(timeout=30) as client:
+        async with httpx.AsyncClient(timeout=timeout) as client:
             resp = await client.get(url, params=params, headers=headers)
             resp.raise_for_status()
             result = resp.json()
@@ -62,8 +71,12 @@ async def post(
     if mcp_key:
         headers["mcp-key"] = mcp_key
     logger.info("POST %s body=%s", url, json.dumps(payload, ensure_ascii=False))
+    
+    # 使用环境变量配置的超时时间
+    timeout = _get_timeout()
+    
     try:
-        async with httpx.AsyncClient(timeout=30) as client:
+        async with httpx.AsyncClient(timeout=timeout) as client:
             resp = await client.post(url, json=payload, headers=headers)
             resp.raise_for_status()
             result = resp.json()
