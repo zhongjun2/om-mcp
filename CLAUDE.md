@@ -80,11 +80,12 @@ HTTP 请求封装，提供三个核心函数：
 - `_build_time_body(start_date, end_date)` — 构建含时间戳的 body dict
 - `_fmt_page(data, item_formatter, label)` — 通用分页格式化
 
-**8个 MCP 接口**:
+**9个 MCP 接口**:
 
 | 接口 | HTTP 路径 |
 |------|-----------|
 | `get_forum_detail` | POST `/query/forum/detail/page` |
+| `get_forum_tag_agg` | POST `/query/forum/tag/agg` |
 | `get_issues_agg_page` | POST `/query/issues/agg` |
 | `get_issues_detail` | POST `/query/issues/detail` |
 | `get_issue_ref_pr` | POST `/query/issue/ref/pr` |
@@ -96,7 +97,7 @@ HTTP 请求封装，提供三个核心函数：
 ### tools/cla_apis.py / tools/project_apis.py
 均为空文件（仅含 `def register(mcp): pass`），原有接口均已废弃。
 
-## 当前有效接口（13个）
+## 当前有效接口（14个）
 
 | 接口 | 所在文件 |
 |------|---------|
@@ -107,6 +108,7 @@ HTTP 请求封装，提供三个核心函数：
 | `get_issues_aggregate` | tools/query_apis.py |
 | `get_prs_aggregate` | tools/query_apis.py |
 | `get_forum_detail` | tools/general_apis.py |
+| `get_forum_tag_agg` | tools/general_apis.py |
 | `get_issues_agg_page` | tools/general_apis.py |
 | `get_issues_detail` | tools/general_apis.py |
 | `get_issue_ref_pr` | tools/general_apis.py |

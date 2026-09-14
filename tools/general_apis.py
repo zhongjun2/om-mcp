@@ -79,6 +79,78 @@ def register(mcp: FastMCP):
 
         return _fmt_page(data, fmt, "论坛帖子详情")
 
+    @mcp.tool()
+    async def get_forum_tag_agg(
+        community: str = "",
+        start_date: str = "",
+        end_date: str = "",
+        group_dim: str = "category_tag",
+        category_name: str = "",
+        tag_name: str = "",
+        page_num: int = 1,
+        page_size: int = 20,
+        asc: str = "",
+        desc: str = "",
+    ) -> str:
+        """获取论坛「问题咨询」过滤后的汇总统计数据（按分类/标签维度聚合），口径与各社区看板「总览」论坛部分一致。
+
+        底层调用 /query/forum/tag/agg（forum汇总分页(tag维度)），返回总数、回复数、本周新增、
+        闭环数、回复率、24h回复率、闭环率等聚合指标。过滤逻辑（category_name ILIKE）与看板
+        「总览」一致，确保 MCP 数据与看板数据口径相同。
+
+        Args:
+            community: 社区名称（可选），目前后端支持 opengauss/openubmc/openeuler
+            start_date: 开始日期，格式 YYYY-MM-DD（可选，不传时后端默认近 90 天）
+            end_date: 结束日期，格式 YYYY-MM-DD（可选，不传时后端默认至今）
+            group_dim: 分组维度，sub_community/category/tag/category_tag，默认 category_tag
+            category_name: 论坛分类名（可选），用于「问题咨询」过滤，如「问题求助」「问题咨询」
+            tag_name: 标签名（可选）
+            page_num: 页码，默认 1
+            page_size: 每页数量，默认 20
+            asc: 升序字段（可选），如 count/reply_count/resolved_count 等
+            desc: 降序字段（可选），如 count/reply_count/resolved_count 等
+        """
+        body = {
+            "group_dim": group_dim,
+            "pageNum": page_num,
+            "pageSize": page_size,
+        }
+        if start_date:
+            body["start"] = _date_to_ms(start_date)
+        if end_date:
+            body["end"] = _date_to_ms(end_date)
+        if community:
+            body["community"] = community.lower()
+        if category_name:
+            body["category_name"] = category_name
+        if tag_name:
+            body["tag_name"] = tag_name
+        if asc:
+            body["asc"] = asc
+        if desc:
+            body["desc"] = desc
+
+        result = await post("/query/forum/tag/agg", body)
+        if result.get("code") != 1:
+            return f"API 错误：{result.get('message', '未知错误')}"
+        data = extract_data(result)
+        if not data:
+            return "暂无论坛汇总数据"
+
+        def fmt(item):
+            return (
+                f"  [{item.get('category_name', 'N/A')}] "
+                f"标签 {item.get('tag', 'N/A')} — "
+                f"总数 {item.get('count', 0)}，回复 {item.get('reply_count', 0)}，"
+                f"本周新增 {item.get('week_new_count', 0)}，"
+                f"闭环 {item.get('resolved_count', 0)}，"
+                f"回复率 {item.get('reply_ratio', 'N/A')}，"
+                f"24h回复率 {item.get('one_day_reply_ratio', 'N/A')}，"
+                f"闭环率 {item.get('resolved_ratio', 'N/A')}"
+            )
+
+        return _fmt_page(data, fmt, "论坛汇总（问题咨询过滤）")
+
     # ── Issue ──────────────────────────────────────────────────────────────
 
     @mcp.tool()

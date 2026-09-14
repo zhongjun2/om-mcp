@@ -1,6 +1,6 @@
 # OM-MCP 接口列表
 
-本文档记录所有已实现且可用的 MCP 工具接口（共 13 个）。
+本文档记录所有已实现且可用的 MCP 工具接口（共 14 个）。
 
 ## 社区相关 (3个)
 
@@ -158,10 +158,10 @@
 
 ---
 
-## 论坛 (1个)
+## 论坛 (2个)
 
 ### get_forum_detail
-获取论坛帖子详情分页列表。
+获取论坛帖子详情分页列表（全量帖子，不做「问题咨询」过滤）。
 
 **参数：**
 - `community` (str, 可选): 社区名称
@@ -171,6 +171,29 @@
 - `desc` (str, 可选): 降序字段，默认 created_at
 
 **返回：** 帖子详情列表
+
+---
+
+### get_forum_tag_agg
+获取论坛「问题咨询」过滤后的汇总统计数据（按分类/标签维度聚合），口径与各社区看板「总览」论坛部分一致。
+
+底层调用 `/query/forum/tag/agg`（forum汇总分页(tag维度)），返回总数、回复数、本周新增、闭环数、
+回复率、24h回复率、闭环率等聚合指标。过滤逻辑（category_name ILIKE）与看板「总览」一致，
+确保 MCP 数据与看板数据口径相同。
+
+**参数：**
+- `community` (str, 可选): 社区名称，目前后端支持 opengauss/openubmc/openeuler
+- `start_date` (str, 可选): 开始日期，格式 YYYY-MM-DD（不传时后端默认近 90 天）
+- `end_date` (str, 可选): 结束日期，格式 YYYY-MM-DD（不传时后端默认至今）
+- `group_dim` (str, 可选): 分组维度，sub_community/category/tag/category_tag，默认 category_tag
+- `category_name` (str, 可选): 论坛分类名，用于「问题咨询」过滤，如「问题求助」「问题咨询」
+- `tag_name` (str, 可选): 标签名
+- `page_num` (int, 可选): 页码，默认 1
+- `page_size` (int, 可选): 每页数量，默认 20
+- `asc` (str, 可选): 升序字段，如 count/reply_count/resolved_count 等
+- `desc` (str, 可选): 降序字段，如 count/reply_count/resolved_count 等
+
+**返回：** 按分类/标签聚合的论坛汇总统计（总数、回复数、本周新增、闭环数、回复率、24h回复率、闭环率）
 
 ---
 
